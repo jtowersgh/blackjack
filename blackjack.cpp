@@ -8,15 +8,23 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
 
 int main()
 {
-    int i,deck[11];
+    int i,j,deck[11];
     double dealer_prob[7];
     for (i=1; i<=9; i++)
         deck[i] = 4 * numdeck;
     deck[10] = 16 * numdeck;
     deck[0] = 52 * numdeck;
-    dealer(5, 0, 1, 1.0, deck, dealer_prob);
-    for (i = 0; i <= 6; i++)
-        cerr << i << "\t" << dealer_prob[i] << "\n";
+    for (i=1; i<=10; i++)
+    {
+        cout << "up card = " << i << "\n";
+        deck[i]--;
+        deck[0]--;
+        dealer(i, (i==1?1:0), 1, 1.0, deck, dealer_prob);
+        for (j = 0; j <= 6; j++)
+        cout << j << "\t" << dealer_prob[j] << "\n";
+        deck[i]++;
+        deck[0]++;
+    }
 }
 
 /*
