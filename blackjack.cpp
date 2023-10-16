@@ -56,5 +56,6 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
             dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
         deck[0]++;
         deck[next_card]++;
+        prob /= (double)deck[next_card] / (double)deck[0];
     }
 }
