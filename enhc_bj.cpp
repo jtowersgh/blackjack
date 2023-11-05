@@ -10,7 +10,7 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
 
 int main()
 {
-    int ch, i,j,deck[11], pc1=0, pc2=0;
+    int ch, i,j,deck[11], pc1, pc2;
     double dealer_prob[7], ev_stand, ev_hit, ev_double, ev_split;
     for (i=1; i<=9; i++)
         deck[i] = 4 * numdeck;
@@ -19,10 +19,7 @@ int main()
     cerr << "1. Dealer probabilities\n";
     cerr << "2. Player hand\n";
     cin >> ch;
-    deck[pc1]--;
-    deck[pc2]--;
-    deck[upcard]--;
-    deck[0] -= 3;
+
 
     if (ch==1)
     {
@@ -33,7 +30,7 @@ int main()
             deck[0]--;
             dealer(i, (i==1?1:0), 1, 1.0, deck, dealer_prob);
             for (j = 0; j <= 6; j++)
-            cout << j << "\t" << dealer_prob[j] << "\n";
+                cout << j << "\t" << dealer_prob[j] << "\n";
             deck[i]++;
             deck[0]++;
         }
@@ -46,6 +43,10 @@ int main()
         cin >> pc2;
         cerr << "Dealer up card: ";
         cin >> upcard;
+        deck[pc1]--;
+        deck[pc2]--;
+        deck[upcard]--;
+        deck[0] -= 3;
         ev_stand=player_stand(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
         cerr << "EV stand =\t" << ev_stand << "\n";
     }
