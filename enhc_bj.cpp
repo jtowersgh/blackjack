@@ -6,6 +6,9 @@ int numdeck = 6;
 int upcard;
 
 double player_stand(int ptot, int pace, int cards, int deck[]);
+double player_hit(int ptot, int pace, int cards, int deck[]);
+double max2(double x, double y);
+double player_double(int ptot, int pace, int deck[]);
 void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[]);
 
 int main()
@@ -48,7 +51,11 @@ int main()
         deck[upcard]--;
         deck[0] -= 3;
         ev_stand=player_stand(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
-        cerr << "EV stand =\t" << ev_stand << "\n";
+        ev_hit=player_hit(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
+        ev_double=player_double(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), deck);
+        cerr << "EV stand  =\t" << ev_stand << "\n";
+        cerr << "EV hit    =\t" << ev_hit << "\n";
+        cerr << "EV double =\t" << ev_double << "\n";
     }
 }
 
@@ -84,6 +91,64 @@ double player_stand(int ptot, int pace, int cards, int deck[])
     }
     return ev_stand;
 }
+
+
+double player_hit(int ptot, int pace, int cards, int deck[])
+{
+    int next_card;
+    double prob, ev_stand,ev_hit,ev_hit_again;
+    ev_hit = 0.0;
+    for (next_card = 1; next_card <= 10; next_card++)
+    {
+        prob = (double)deck[next_card] / (double)deck[0];
+        deck[next_card]--;
+        deck[0]--;
+        ev_stand=player_stand(ptot+next_card, pace+(next_card==1?1:0), cards + 1, deck);
+        if (ptot+next_card<17)
+            ev_hit_again= player_hit(ptot+next_card, pace+(next_card==1?1:0), cards + 1, deck);
+        else
+            ev_hit_again = -1;
+        ev_hit += prob*max(ev_stand, ev_hit_again);
+        deck[next_card]++;
+        deck[0]++;
+    }
+    return ev_hit; 
+}
+
+double player_double(int ptot, int pace, int deck[])
+{
+    int next_card;
+    double prob,ev_double;
+    ev_double = 0.0;
+    if (ptot>11)
+        ev_double=-1;
+    else
+    {
+    
+    for (next_card = 1; next_card <= 10; next_card++)
+        {
+            prob = (double)deck[next_card] / (double)deck[0];
+            deck[next_card]--;
+            deck[0]--;
+            ev_double+=prob*player_stand(ptot+next_card, pace+(next_card==1?1:0), 3, deck);
+            deck[next_card]++;
+            deck[0]++;
+        }
+    }
+    return 2*ev_double;
+}
+
+double max2(double x, double y)
+{
+    if (x > y)
+        return x;
+    else
+        return y;
+}
+
+
+
+
 /*
  * Dealer Prob
  * 0 = 17
