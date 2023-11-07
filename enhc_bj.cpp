@@ -7,9 +7,10 @@ int upcard;
 
 double player_stand(int ptot, int pace, int cards, int deck[]);
 double player_hit(int ptot, int pace, int cards, int deck[]);
-double max2(double x, double y);
 double player_double(int ptot, int pace, int deck[]);
+double player_split(int ptot, int pace, int deck[]);
 void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[]);
+double max2(double x, double y);
 
 int main()
 {
@@ -53,9 +54,14 @@ int main()
         ev_stand=player_stand(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
         ev_hit=player_hit(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
         ev_double=player_double(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), deck);
+        if (pc1==pc2)
+            ev_split=player_split(pc1,(pc1==1?1:0), deck);
+        else
+            ev_split = -1.0;
         cerr << "EV stand  =\t" << ev_stand << "\n";
         cerr << "EV hit    =\t" << ev_hit << "\n";
         cerr << "EV double =\t" << ev_double << "\n";
+        cerr << "EV split  =\t" << ev_split << "\n";
     }
 }
 
@@ -137,6 +143,31 @@ double player_double(int ptot, int pace, int deck[])
     }
     return 2*ev_double;
 }
+
+
+double player_split(int ptot, int pace, int deck[])
+{
+    int next_card;
+    double prob,ev_split,ev_stand,ev_hit;
+    ev_split = 0.0;
+    for (next_card = 1; next_card <= 10; next_card++)
+    {
+        prob = (double)deck[next_card] / (double)deck[0];
+        deck[next_card]--;
+        deck[0]--;
+        ev_stand = player_stand(ptot+next_card, pace+(next_card==1?1:0), 3, deck); // player stand function using 3 cards to trick the stand function.
+        if (ptot == 1)
+            ev_hit = -1.0;
+        else
+            ev_hit = player_hit(ptot+next_card, pace+(next_card==1?1:0), 2, deck); 
+        ev_split+=prob*max2(ev_stand, ev_hit);
+        deck[next_card]++;
+        deck[0]++;
+    }
+    
+    return 2*ev_split;
+}
+
 
 double max2(double x, double y)
 {
