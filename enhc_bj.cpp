@@ -22,6 +22,7 @@ int main()
     deck[0] = 52 * numdeck;
     cerr << "1. Dealer probabilities\n";
     cerr << "2. Player hand\n";
+    cerr << "3. Whole game\n";
     cin >> ch;
 
 
@@ -62,6 +63,92 @@ int main()
         cerr << "EV hit    =\t" << ev_hit << "\n";
         cerr << "EV double =\t" << ev_double << "\n";
         cerr << "EV split  =\t" << ev_split << "\n";
+    }
+    else if (ch == 3)
+    {
+        double prob = 1.0;
+        double tot_prob = 0.0;
+        double tot_ev = 0.0;
+        double max_ev;
+        int basic_strategy[11][11][11];
+        for (pc1 = 1; pc1 <=10; pc1++)
+        {
+            prob *= (double)deck[pc1] / (double)deck[0];
+            deck[pc1]--;
+            deck[0]--;
+            for (pc2 = pc1; pc2 <=10; pc2++)
+            {
+                prob *= (pc1==pc2?1:2)*(double)deck[pc2] / (double)deck[0];
+                deck[pc2]--;
+                deck[0]--;
+                for (upcard = 1; upcard <= 10; upcard++)
+                {
+                    prob *= (double)deck[upcard] / (double)deck[0];
+                    tot_prob += prob;
+                    deck[upcard]--;
+                    deck[0]--;
+
+                    ev_stand=player_stand(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
+                    ev_hit=player_hit(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
+                    ev_double=player_double(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), deck);
+                    if (pc1==pc2)
+                        ev_split=player_split(pc1,(pc1==1?1:0), deck);
+                    else
+                        ev_split = -1.0;
+                    max_ev = max2(max2(ev_hit,ev_stand), max2(ev_double, ev_split));
+                    if (max_ev==ev_stand)
+                        basic_strategy[pc1][pc2][upcard] = 1;
+                    else if (max_ev==ev_hit)
+                        basic_strategy[pc1][pc2][upcard] = 2;
+                    else if (max_ev==ev_double)
+                        basic_strategy[pc1][pc2][upcard] = 3;
+                    else
+                        basic_strategy[pc1][pc2][upcard] = 4;
+                    tot_ev+=prob * max_ev;
+                    printf("%i, %i, %i, %f, %f, %f, %f\n", pc1, pc2, upcard, ev_stand, ev_hit, ev_double, ev_split);
+
+                    deck[0]++;
+                    deck[upcard]++;
+                    prob /= (double)deck[upcard] / (double)deck[0];
+                }
+                deck[0]++;
+                deck[pc2]++;
+                prob /= (pc1 == pc2 ? 1 : 2) * (double)deck[pc2] / (double)deck[0];
+            }
+            deck[0]++;
+            deck[pc1]++;
+            prob /= (double)deck[pc1] / (double)deck[0];
+        }
+        printf("Total probability   = \t%f\n", tot_prob);
+        printf("Game Expected Value = \t%f\n", tot_ev);
+        printf("Hard Totals\n");
+        char codes[]="XSHDP";
+        for (pc1=2; pc1<=9; pc1++)
+        {
+            for (pc2=pc1+1; pc2<=10; pc2++)
+            {
+                printf("%i+%i\t", pc1, pc2);
+                for (upcard=2; upcard<=10; upcard++)
+                    printf("%c,", codes[basic_strategy[pc1][pc2][upcard]]);
+                printf("%c\n", codes[basic_strategy[pc1][pc2][1]]);
+            }
+        }
+        printf("Soft Totals\n");
+        for (pc2=2; pc2<=10; pc2++)
+        {
+            printf("%i+%i\t", 1, pc2);
+            for (upcard=2; upcard<=10; upcard++)
+                printf("%c,", codes[basic_strategy[1][pc2][upcard]]);
+            printf("%c\n", codes[basic_strategy[1][pc2][1]]);
+        }
+        printf("Pairs\n");
+        for (pc2=1; pc2<=10; pc2++)
+        {
+            printf("%i+%i\t", pc2, pc2);
+            for (upcard=2; upcard<=10; upcard++)
+                printf("%c,", codes[basic_strategy[pc2][pc2][upcard]]);
+            printf("%c\n", codes[basic_strategy[pc2][pc2][1]]);
+        }
     }
 }
 
