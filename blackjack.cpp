@@ -15,11 +15,12 @@ double max2(double x, double y);
 int main()
 {
     int ch, i,j,deck[11], pc1, pc2;
-    double dealer_prob[7], ev_stand, ev_hit, ev_double, ev_split;
+    double dealer_prob[7], ev_stand, ev_hit, ev_double, ev_split, ev_surrender;
     for (i=1; i<=9; i++)
         deck[i] = 4 * numdeck;
     deck[10] = 16 * numdeck;
     deck[0] = 52 * numdeck;
+    ev_surrender = -0.5;
     cerr << "1. Dealer probabilities\n";
     cerr << "2. Player hand\n";
     cerr << "3. Whole game\n";
@@ -95,15 +96,17 @@ int main()
                         ev_split=player_split(pc1,(pc1==1?1:0), deck);
                     else
                         ev_split = -1.0;
-                    max_ev = max2(max2(ev_hit,ev_stand), max2(ev_double, ev_split));
+                    max_ev = max2(max2(max2(ev_hit,ev_stand), max2(ev_double, ev_split)),ev_surrender);
                     if (max_ev==ev_stand)
                         basic_strategy[pc1][pc2][upcard] = 1;
                     else if (max_ev==ev_hit)
                         basic_strategy[pc1][pc2][upcard] = 2;
                     else if (max_ev==ev_double)
                         basic_strategy[pc1][pc2][upcard] = 3;
-                    else
+                    else if (max_ev==ev_split)
                         basic_strategy[pc1][pc2][upcard] = 4;
+                    else
+                        basic_strategy[pc1][pc2][upcard] = 5;
                     tot_ev+=prob * max_ev;
                     printf("%i, %i, %i, %f, %f, %f, %f\n", pc1, pc2, upcard, ev_stand, ev_hit, ev_double, ev_split);
 
@@ -122,7 +125,7 @@ int main()
         printf("Total probability   = \t%f\n", tot_prob);
         printf("Game Expected Value = \t%f\n", tot_ev);
         printf("Hard Totals\n");
-        char codes[]="XSHDP";
+        char codes[]="XSHDPR";
         for (pc1=2; pc1<=9; pc1++)
         {
             for (pc2=pc1+1; pc2<=10; pc2++)
@@ -254,6 +257,8 @@ double player_split(int ptot, int pace, int deck[])
     
     return 2*ev_split;
 }
+
+
 
 
 double max2(double x, double y)
