@@ -285,13 +285,49 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
         for (i = 0; i <= 6; i++)
             dealer_prob[i] = 0.0;
     }
-    if (old_total == 1)
+    if (old_tot == 1) // for dealer ace upcard, hole card cannot be a ten value card
     {
-
+        for (next_card = 1; next_card <= 9; next_card++)
+        {
+            prob *= (double)deck[next_card] / ((double)deck[0]-double(deck[10]));
+            deck[next_card]--;
+            deck[0]--;
+            new_tot = old_tot + next_card;
+            new_ace = old_ace + (next_card == 1 ? 1 : 0);
+            if (new_tot > 21)
+                dealer_prob[6] += prob;
+            else if (new_tot >= 17)
+                dealer_prob[new_tot -17] += prob;
+            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+                dealer_prob[new_tot - 7] += prob;
+            else
+                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
+            deck[0]++;
+            deck[next_card]++;
+            prob /= (double)deck[next_card] / ((double)deck[0]-double(deck[10]));
+        }
     }
-    else if (old_total == 10)
+    else if (old_tot == 10) // for dealer ten upcard, hole card cannot be an ace
     {
-
+        for (next_card = 2; next_card <= 10; next_card++)
+        {
+            prob *= (double)deck[next_card] / ((double)deck[0]-double(deck[1]));
+            deck[next_card]--;
+            deck[0]--;
+            new_tot = old_tot + next_card;
+            new_ace = old_ace + (next_card == 1 ? 1 : 0);
+            if (new_tot > 21)
+                dealer_prob[6] += prob;
+            else if (new_tot >= 17)
+                dealer_prob[new_tot -17] += prob;
+            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+                dealer_prob[new_tot - 7] += prob;
+            else
+                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
+            deck[0]++;
+            deck[next_card]++;
+            prob /= (double)deck[next_card] / ((double)deck[0]-double(deck[1]));
+        }
     }
     else
     {
@@ -302,13 +338,11 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
             deck[0]--;
             new_tot = old_tot + next_card;
             new_ace = old_ace + (next_card == 1 ? 1 : 0);
-            if ((cards==1) && (new_tot==11) && (new_ace == 1)) // blackjack}}
-                dealer_prob[5] += prob;
-            else if (new_tot > 21)
+            if (new_tot > 21)
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if ((new_tot >= 7) && (new_tot<=11) && (new_ace > 0))
+            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
                 dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
