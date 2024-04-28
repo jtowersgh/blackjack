@@ -9,18 +9,25 @@ double player_stand(int ptot, int pace, int cards, int deck[]);
 double player_hit(int ptot, int pace, int cards, int deck[]);
 double player_double(int ptot, int pace, int deck[]);
 double player_split(int ptot, int pace, int deck[]);
-void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[]);
+void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[], int h17);
 double max2(double x, double y);
 
 int main()
 {
-    int ch, i,j,deck[11], pc1, pc2;
+    int ch, h17, i,j,deck[11], pc1, pc2;
     double dealer_prob[7], ev_stand, ev_hit, ev_double, ev_split, ev_surrender;
     for (i=1; i<=9; i++)
         deck[i] = 4 * numdeck;
     deck[10] = 16 * numdeck;
     deck[0] = 52 * numdeck;
     ev_surrender = -0.5;
+
+// Dealer Hit Soft 17 Rule
+    cerr << "H17?\n";
+    cerr << "1. H17\n";
+    cerr << "2. S17\n";
+    cin >> h17;
+
     cerr << "1. Dealer probabilities\n";
     cerr << "2. Player hand\n";
     cerr << "3. Whole game\n";
@@ -282,7 +289,7 @@ double max2(double x, double y)
  * 5 = bj
  * 6 = bust */
 
-void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[])
+void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[], int h17)
 {
     int i,next_card,new_tot,new_ace;
     if (cards == 1)
@@ -347,7 +354,7 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if ((new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
                 dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);

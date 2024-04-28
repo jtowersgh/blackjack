@@ -1,0 +1,25 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	Development	//
+dealer	blackjack.cpp	/^void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[], int h17)$/;"	f
+dealer	enhc_bj.cpp	/^void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[])$/;"	f
+main	blackjack.cpp	/^int main()$/;"	f
+main	enhc_bj.cpp	/^int main()$/;"	f
+main	hello.cpp	/^int main()$/;"	f
+max2	blackjack.cpp	/^double max2(double x, double y)$/;"	f
+max2	enhc_bj.cpp	/^double max2(double x, double y)$/;"	f
+numdeck	blackjack.cpp	/^int numdeck = 6;$/;"	v
+numdeck	enhc_bj.cpp	/^int numdeck = 6;$/;"	v
+player_double	blackjack.cpp	/^double player_double(int ptot, int pace, int deck[])$/;"	f
+player_double	enhc_bj.cpp	/^double player_double(int ptot, int pace, int deck[])$/;"	f
+player_hit	blackjack.cpp	/^double player_hit(int ptot, int pace, int cards, int deck[])$/;"	f
+player_hit	enhc_bj.cpp	/^double player_hit(int ptot, int pace, int cards, int deck[])$/;"	f
+player_split	blackjack.cpp	/^double player_split(int ptot, int pace, int deck[])$/;"	f
+player_split	enhc_bj.cpp	/^double player_split(int ptot, int pace, int deck[])$/;"	f
+player_stand	blackjack.cpp	/^double player_stand(int ptot, int pace, int cards, int deck[])$/;"	f
+player_stand	enhc_bj.cpp	/^double player_stand(int ptot, int pace, int cards, int deck[])$/;"	f
+upcard	blackjack.cpp	/^int upcard;$/;"	v
+upcard	enhc_bj.cpp	/^int upcard;$/;"	v
