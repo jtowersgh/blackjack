@@ -167,15 +167,7 @@ double player_stand(int ptot, int pace, int cards, int deck[])
 {
     double ev_stand, dealer_prob[7];
     if ((ptot == 11) && (pace == 1) && (cards == 2))
-    {
-        if ((upcard > 1) && (upcard < 10)) // winning BJ
-            return 1.5;
-        else
-        {
-            dealer(upcard, (upcard == 1 ? 1 : 0), 1, 1.0, deck, dealer_prob, h17);
-            return 1.5 * (dealer_prob[0] + dealer_prob[1] + dealer_prob[2] + dealer_prob[3] + dealer_prob[4] + dealer_prob[6]);
-        }
-    }
+        return 1.5;
     else if (ptot > 21) // player busts
         return -1.0;
     else
