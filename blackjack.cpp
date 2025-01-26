@@ -4,6 +4,7 @@ using namespace std;
 
 int numdeck = 6;
 int upcard;
+int h17;
 
 double player_stand(int ptot, int pace, int cards, int deck[]);
 double player_hit(int ptot, int pace, int cards, int deck[]);
@@ -14,7 +15,7 @@ double max2(double x, double y);
 
 int main()
 {
-    int ch, h17, i,j,deck[11], pc1, pc2;
+    int ch, i,j,deck[11], pc1, pc2;
     double dealer_prob[7], ev_stand, ev_hit, ev_double, ev_split, ev_surrender;
     for (i=1; i<=9; i++)
         deck[i] = 4 * numdeck;
@@ -41,7 +42,7 @@ int main()
             cout << "up card = " << i << "\n";
             deck[i]--;
             deck[0]--;
-            dealer(i, (i==1?1:0), 1, 1.0, deck, dealer_prob);
+            dealer(i, (i==1?1:0), 1, 1.0, deck, dealer_prob, h17);
             for (j = 0; j <= 6; j++)
                 cout << j << "\t" << dealer_prob[j] << "\n";
             deck[i]++;
@@ -171,7 +172,7 @@ double player_stand(int ptot, int pace, int cards, int deck[])
             return 1.5;
         else
         {
-            dealer(upcard, (upcard == 1 ? 1 : 0), 1, 1.0, deck, dealer_prob);
+            dealer(upcard, (upcard == 1 ? 1 : 0), 1, 1.0, deck, dealer_prob, h17);
             return 1.5 * (dealer_prob[0] + dealer_prob[1] + dealer_prob[2] + dealer_prob[3] + dealer_prob[4] + dealer_prob[6]);
         }
     }
@@ -181,7 +182,7 @@ double player_stand(int ptot, int pace, int cards, int deck[])
     {
         if ((ptot <= 11) && (pace > 0)) // soft
             ptot += 10;
-        dealer(upcard, (upcard == 1 ? 1 : 0), 1, 1.0, deck, dealer_prob);
+        dealer(upcard, (upcard == 1 ? 1 : 0), 1, 1.0, deck, dealer_prob, h17);
         ev_stand = dealer_prob[6];
         ev_stand -= dealer_prob[5];
         for (int i=0; i<=4; i++)
@@ -310,16 +311,16 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
-                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
+                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
             deck[0]++;
             deck[next_card]++;
             prob /= (double)deck[next_card] / ((double)deck[0]-double(deck[10]));
         }
     }
-    else if (old_tot == 10) // for dealer ten upcard, hole card cannot be an ace
+    else if (old_tot == 10 && cards == 1)// for dealer ten upcard, hole card cannot be an ace
     {
         for (next_card = 2; next_card <= 10; next_card++)
         {
@@ -332,10 +333,10 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if ((new_tot >= 8) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
-                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
+                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
             deck[0]++;
             deck[next_card]++;
             prob /= (double)deck[next_card] / ((double)deck[0]-double(deck[1]));
@@ -354,10 +355,10 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if ((new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
-                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob);
+                dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
             deck[0]++;
             deck[next_card]++;
             prob /= (double)deck[next_card] / (double)deck[0];
