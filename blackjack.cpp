@@ -5,11 +5,13 @@ using namespace std;
 int numdeck = 6;
 int upcard;
 int h17;
+int das;
+int rsa;
 
 double player_stand(int ptot, int pace, int cards, int deck[]);
 double player_hit(int ptot, int pace, int cards, int deck[]);
 double player_double(int ptot, int pace, int deck[]);
-double player_split(int ptot, int pace, int deck[]);
+double player_split(int ptot, int pace, int deck[], int das, int rsa);
 void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double dealer_prob[], int h17);
 double max2(double x, double y);
 
@@ -25,9 +27,19 @@ int main()
 
 // Dealer Hit Soft 17 Rule
     cerr << "H17?\n";
-    cerr << "1. H17\n";
-    cerr << "2. S17\n";
+    cerr << "1. S17\n";
+    cerr << "2. H17\n";
     cin >> h17;
+
+    cerr << "DAS?\n";
+    cerr << "1. yes\n";
+    cerr << "2. no\n";
+    cin >> das;
+
+    cerr << "RSA?\n";
+    cerr << "1. no\n";
+    cerr << "2. yes\n";
+    cin >> rsa;
 
     cerr << "1. Dealer probabilities\n";
     cerr << "2. Player hand\n";
@@ -65,7 +77,7 @@ int main()
         ev_hit=player_hit(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
         ev_double=player_double(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), deck);
         if (pc1==pc2)
-            ev_split=player_split(pc1,(pc1==1?1:0), deck);
+            ev_split=player_split(pc1,(pc1==1?1:0), deck, das, rsa);
         else
             ev_split = -1.0;
         cerr << "EV stand  =\t" << ev_stand << "\n";
@@ -101,7 +113,7 @@ int main()
                     ev_hit=player_hit(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), 2, deck);
                     ev_double=player_double(pc1+pc2, (pc1==1?1:0) + (pc2==1?1:0), deck);
                     if (pc1==pc2)
-                        ev_split=player_split(pc1,(pc1==1?1:0), deck);
+                        ev_split=player_split(pc1,(pc1==1?1:0), deck, das, rsa);
                     else
                         ev_split = -1.0;
                     max_ev = max2(max2(max2(ev_hit,ev_stand), max2(ev_double, ev_split)),ev_surrender);
@@ -166,9 +178,7 @@ int main()
 double player_stand(int ptot, int pace, int cards, int deck[])
 {
     double ev_stand, dealer_prob[7];
-    if ((ptot == 11) && (pace == 1) && (cards == 2))
-        return 1.5;
-    else if (ptot > 21) // player busts
+    if (ptot > 21) // player busts
         return -1.0;
     else
     {
@@ -235,22 +245,26 @@ double player_double(int ptot, int pace, int deck[])
 }
 
 
-double player_split(int ptot, int pace, int deck[])
+double player_split(int ptot, int pace, int deck[], int das, int rsa)
 {
     int next_card;
-    double prob,ev_split,ev_stand,ev_hit;
+    double prob,ev_split,ev_stand,ev_hit,ev_double;
     ev_split = 0.0;
     for (next_card = 1; next_card <= 10; next_card++)
     {
         prob = (double)deck[next_card] / (double)deck[0];
         deck[next_card]--;
         deck[0]--;
-        ev_stand = player_stand(ptot+next_card, pace+(next_card==1?1:0), 3, deck); // player stand function using 3 cards to trick the stand function.
+        ev_stand = player_stand(ptot+next_card, pace+(next_card==1?1:0), 2, deck); 
         if (ptot == 1)
             ev_hit = -1.0;
         else
             ev_hit = player_hit(ptot+next_card, pace+(next_card==1?1:0), 2, deck); 
-        ev_split+=prob*max2(ev_stand, ev_hit);
+        if (das == 1 && ptot != 1)
+            ev_double = player_double(ptot+next_card, pace+(next_card==1?1:0), deck);
+        else
+            ev_double = -1.0;
+        ev_split+=prob*max2(max2(ev_double, ev_hit), ev_stand);
         deck[next_card]++;
         deck[0]++;
     }
@@ -303,7 +317,7 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17+6) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
                 dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
@@ -325,7 +339,7 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17+6) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
                 dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
@@ -347,7 +361,7 @@ void dealer(int old_tot, int old_ace, int cards, double prob, int deck[], double
                 dealer_prob[6] += prob;
             else if (new_tot >= 17)
                 dealer_prob[new_tot -17] += prob;
-            else if (new_tot >= (h17 == 1? 8:7) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
+            else if (new_tot >= (h17+6) && (new_tot<=11) && (new_ace > 0)) // new_tot >= 7 for S17
                 dealer_prob[new_tot - 7] += prob;
             else
                 dealer(new_tot, new_ace, cards + 1, prob, deck, dealer_prob, h17);
